@@ -1,7 +1,7 @@
-package sn.unchk.emoney_transfer.utilisateur;
+package sn.unchk.emoney_transfer.features.utilisateur;
 
 import lombok.Builder;
-import sn.unchk.emoney_transfer.utilisateur.profile.Profile;
+import sn.unchk.emoney_transfer.features.utilisateur.profile.Profile;
 
 import java.io.Serializable;
 

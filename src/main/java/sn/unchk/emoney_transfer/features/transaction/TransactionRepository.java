@@ -1,4 +1,4 @@
-package sn.unchk.emoney_transfer.transaction;
+package sn.unchk.emoney_transfer.features.transaction;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

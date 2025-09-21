@@ -3,13 +3,14 @@ package sn.unchk.emoney_transfer.fake;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import sn.unchk.emoney_transfer.compte.Compte;
-import sn.unchk.emoney_transfer.compte.CompteRepository;
-import sn.unchk.emoney_transfer.utilisateur.Utilisateur;
-import sn.unchk.emoney_transfer.utilisateur.UtilisateurRepository;
-import sn.unchk.emoney_transfer.utilisateur.profile.Profile;
-import sn.unchk.emoney_transfer.utilisateur.profile.ProfileRepository;
+import sn.unchk.emoney_transfer.features.compte.Compte;
+import sn.unchk.emoney_transfer.features.compte.CompteRepository;
+import sn.unchk.emoney_transfer.features.utilisateur.Utilisateur;
+import sn.unchk.emoney_transfer.features.utilisateur.UtilisateurRepository;
+import sn.unchk.emoney_transfer.features.utilisateur.profile.Profile;
+import sn.unchk.emoney_transfer.features.utilisateur.profile.ProfileRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -28,6 +29,7 @@ public class InitData implements CommandLineRunner {
     private final CompteRepository compteRepository;
     private final UtilisateurRepository utilisateurRepository;
     private final ProfileRepository profileRepository;
+    private final PasswordEncoder passwordEncoder;
 
 
     @Override
@@ -57,39 +59,29 @@ public class InitData implements CommandLineRunner {
                     .prenom("Alice")
                     .nom("Dupont")
                     .email("alice.dupont@email.com")
-                    .motDePasse("password1")
+                    .motDePasse(passwordEncoder.encode("password1"))
                     .telephone("770000001")
                     .pays("Senegal")
                     .numeroPiece("SN123456")
                     .photo("alice.jpg")
                     .photoPiece("alice_piece.jpg")
+                    .isActif(true)
                     .build();
 
             Utilisateur u2 = Utilisateur.builder()
                     .prenom("Bob")
                     .nom("Diop")
                     .email("bob.diop@email.com")
-                    .motDePasse("password2")
+                    .motDePasse(passwordEncoder.encode("password2"))
                     .telephone("770000002")
                     .pays("Senegal")
                     .numeroPiece("SN654321")
                     .photo("bob.jpg")
                     .photoPiece("bob_piece.jpg")
+                    .isActif(true)
                     .build();
 
-            Utilisateur u3 = Utilisateur.builder()
-                    .prenom("Charlie")
-                    .nom("Sarr")
-                    .email("charlie.sarr@email.com")
-                    .motDePasse("password3")
-                    .telephone("770000003")
-                    .pays("Senegal")
-                    .numeroPiece("SN789012")
-                    .photo("charlie.jpg")
-                    .photoPiece("charlie_piece.jpg")
-                    .build();
-
-            utilisateurRepository.saveAll(List.of(u1, u2, u3));
+            utilisateurRepository.saveAll(List.of(u1, u2));
 
         }
 

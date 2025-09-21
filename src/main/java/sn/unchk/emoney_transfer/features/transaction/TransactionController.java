@@ -1,4 +1,4 @@
-package sn.unchk.emoney_transfer.transaction;
+package sn.unchk.emoney_transfer.features.transaction;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

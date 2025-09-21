@@ -1,23 +1,25 @@
-package sn.unchk.emoney_transfer.compte;
+package sn.unchk.emoney_transfer.features.compte;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import sn.unchk.emoney_transfer.features.utilisateur.Utilisateur;
+import sn.unchk.emoney_transfer.features.utilisateur.UtilisateurService;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
+@CrossOrigin("http://localhost:4200")
 @RestController
 @RequestMapping("/api/comptes")
+@RequiredArgsConstructor
 public class CompteController {
 
     private final CompteService compteService;
 
-    public CompteController(CompteService compteService) {
-        this.compteService = compteService;
-    }
 
     @PostMapping("/creer")
     public ResponseEntity<CompteDto> creerCompte(
@@ -65,7 +67,7 @@ public class CompteController {
     }
 
     @GetMapping("/utilisateur/{utilisateurId}")
-    public ResponseEntity<List<CompteDto>> getComptesParUtilisateur(@PathVariable Long utilisateurId) {
+    public ResponseEntity<CompteDto> getComptesParUtilisateur(@PathVariable Long utilisateurId) {
         return ResponseEntity.ok(compteService.getComptesParUtilisateur(utilisateurId));
     }
 
@@ -73,6 +75,17 @@ public class CompteController {
     public ResponseEntity<List<CompteDto>> getComptesActifs() {
         return ResponseEntity.ok(compteService.getComptesActifs());
     }
+
+    @GetMapping
+    public ResponseEntity<List<CompteDto>> getComptes() {
+        return ResponseEntity.ok(compteService.getComptes());
+    }
+
+    @GetMapping("/envoyees")
+    public ResponseEntity<List<CompteDto>> getComptesEnvoyees() {
+        return ResponseEntity.ok(compteService.getComptesEnvoyees());
+    }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<CompteDto> getCompte(@PathVariable Long id) {

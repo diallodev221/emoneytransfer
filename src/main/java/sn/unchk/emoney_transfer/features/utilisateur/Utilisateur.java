@@ -1,8 +1,8 @@
-package sn.unchk.emoney_transfer.utilisateur;
+package sn.unchk.emoney_transfer.features.utilisateur;
 
 import jakarta.persistence.*;
 import lombok.*;
-import sn.unchk.emoney_transfer.utilisateur.profile.Profile;
+import sn.unchk.emoney_transfer.features.utilisateur.profile.Profile;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -26,6 +26,8 @@ public class Utilisateur {
     private String numeroPiece;
     private String photo;
     private String photoPiece;
+
+    private boolean isActif;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "profile_id", referencedColumnName = "id")

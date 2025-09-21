@@ -1,8 +1,8 @@
-package sn.unchk.emoney_transfer.transaction;
+package sn.unchk.emoney_transfer.features.transaction;
 
 import jakarta.persistence.*;
 import lombok.*;
-import sn.unchk.emoney_transfer.compte.Compte;
+import sn.unchk.emoney_transfer.features.compte.Compte;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -29,4 +29,5 @@ public class Transaction {
 
     private BigDecimal montant;
     private LocalDateTime date;
+    private String description;
 }

@@ -1,12 +1,11 @@
-package sn.unchk.emoney_transfer.transaction;
+package sn.unchk.emoney_transfer.features.transaction;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import sn.unchk.emoney_transfer.compte.Compte;
-import sn.unchk.emoney_transfer.compte.CompteRepository;
-import sn.unchk.emoney_transfer.utilisateur.UtilisateurRepository;
+import sn.unchk.emoney_transfer.features.compte.Compte;
+import sn.unchk.emoney_transfer.features.compte.CompteRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -40,9 +39,10 @@ public class TransactionService {
         transaction.setDestinataire(compteDestinataire);
         transaction.setMontant(request.montant());
         transaction.setDate(LocalDateTime.now());
+        transaction.setDescription(request.description());
         transactionRepo.save(transaction);
 
         log.info("Transaction de {} vers {} réussie", compteDestinataire.getUtilisateur().getNom(), compteDestinataire.getUtilisateur().getNom());
-        return new TransactionResponse(compteSource.getUtilisateur().getNom(), compteDestinataire.getUtilisateur().getNom(), request.montant(), transaction.getDate());
+        return new TransactionResponse(compteSource.getUtilisateur().getNom(), compteDestinataire.getUtilisateur().getNom(), request.montant(), transaction.getDate(), transaction.getDescription());
     }
 }

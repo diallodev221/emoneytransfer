@@ -1,15 +1,19 @@
-package sn.unchk.emoney_transfer.compte;
+package sn.unchk.emoney_transfer.features.compte;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
-import sn.unchk.emoney_transfer.utilisateur.Utilisateur;
-import sn.unchk.emoney_transfer.utilisateur.UtilisateurRepository;
+import org.springframework.transaction.annotation.Transactional;
+import sn.unchk.emoney_transfer.features.utilisateur.Utilisateur;
+import sn.unchk.emoney_transfer.features.utilisateur.UtilisateurRepository;
+import sn.unchk.emoney_transfer.features.utilisateur.UtilisateurService;
+import sn.unchk.emoney_transfer.utils.CodeGenerator;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 @Service
@@ -18,18 +22,20 @@ public class CompteService {
     private final CompteRepository compteRepository;
     private final UtilisateurRepository utilisateurRepository;
     private final CompteMapper mapper;
-
+    private final UtilisateurService utilisateurService;
 
 
     public CompteDto creerCompte(Long utilisateurId, BigDecimal soldeInitial) {
         Utilisateur utilisateur = utilisateurRepository.findById(utilisateurId)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
 
-        Compte compte = new Compte();
-        compte.setUtilisateur(utilisateur);
-        compte.setSolde(soldeInitial != null ? soldeInitial : BigDecimal.ZERO);
-        compte.setActive(true);
-        compte.setDateCreation(LocalDateTime.now());
+        Compte compte = Compte.builder()
+                .solde(Objects.nonNull(soldeInitial) ? soldeInitial : BigDecimal.ZERO)
+                .numeroCompte(CodeGenerator.generateBankAccountNumber(16))
+                .active(true)
+                .dateCreation(LocalDateTime.now())
+                .utilisateur(utilisateur)
+                .build();
 
         return mapper.toDto(compteRepository.save(compte));
     }
@@ -52,7 +58,7 @@ public class CompteService {
     }
 
     public Map<String, BigDecimal> consulterSolde(Long compteId) {
-        return  Map.of("solde", loadCompteById(compteId).getSolde());
+        return Map.of("solde", loadCompteById(compteId).getSolde());
     }
 
     public CompteDto desactiverCompte(Long compteId) {
@@ -72,22 +78,21 @@ public class CompteService {
         compteRepository.delete(compte);
     }
 
-    public List<CompteDto> getComptesParUtilisateur(Long utilisateurId) {
-        return compteRepository.findByUtilisateurId(utilisateurId).stream()
+    public CompteDto getComptesParUtilisateur(Long utilisateurId) {
+        return compteRepository.findByUtilisateurId(utilisateurId)
                 .map(mapper::toDto)
-                .toList();
+                .orElseThrow(() -> new IllegalArgumentException("Compte non trouvé pour l'utilisateur donné"));
     }
 
-    // ✅ Récupérer un compte par ID
     public CompteDto getCompteById(Long id) {
         return compteRepository.findById(id)
                 .map(mapper::toDto)
                 .orElseThrow(() -> new RuntimeException("Compte non trouvé"));
     }
 
-    // ✅ Lister tous les comptes actifs
     public List<CompteDto> getComptesActifs() {
-        return compteRepository.findByActiveTrue().stream()
+        Utilisateur currentUser = utilisateurService.getCurrentUser();
+        return compteRepository.findActiveComptes(currentUser.getId()).stream()
                 .map(mapper::toDto)
                 .toList();
     }
@@ -95,6 +100,22 @@ public class CompteService {
     private Compte loadCompteById(Long compteId) {
         return compteRepository.findById(compteId)
                 .orElseThrow(() -> new RuntimeException("Compte non trouvé"));
+    }
+
+    public List<CompteDto> getComptes() {
+        return compteRepository.findAllComptes().stream()
+                .map(mapper::toDto)
+                .toList();
+    }
+
+    public List<CompteDto> getComptesEnvoyees() {
+        Utilisateur currentUser = utilisateurService.getCurrentUser();
+
+        CompteDto comptesParUtilisateur = getComptesParUtilisateur(currentUser.getId());
+
+        return compteRepository.findAllComptesPourEnvoie(comptesParUtilisateur.id()).stream()
+                .map(mapper::toDto)
+                .toList();
     }
 }
 

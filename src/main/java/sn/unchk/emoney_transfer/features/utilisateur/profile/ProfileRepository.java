@@ -1,4 +1,4 @@
-package sn.unchk.emoney_transfer.utilisateur.profile;
+package sn.unchk.emoney_transfer.features.utilisateur.profile;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

@@ -1,4 +1,4 @@
-package sn.unchk.emoney_transfer.utilisateur;
+package sn.unchk.emoney_transfer.features.utilisateur;
 
 import lombok.Builder;
 

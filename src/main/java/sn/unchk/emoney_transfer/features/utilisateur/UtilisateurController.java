@@ -1,0 +1,32 @@
+package sn.unchk.emoney_transfer.features.utilisateur;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/utilisateurs")
+public class UtilisateurController {
+
+    private final UtilisateurService utilisateurService;
+
+    public UtilisateurController(UtilisateurService utilisateurService) {
+        this.utilisateurService = utilisateurService;
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<UtilisateurResponseDto> register(@RequestBody RegisterRequest request) {
+        return ResponseEntity.ok(utilisateurService.enregistrer(request));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<UtilisateurResponseDto>> getAll() {
+        return ResponseEntity.ok(utilisateurService.getAll());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<UtilisateurResponseDto> update(@PathVariable Long id, @RequestBody RegisterRequest request) {
+        return ResponseEntity.ok(utilisateurService.update(id, request));
+    }
+}

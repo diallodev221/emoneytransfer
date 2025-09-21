@@ -1,4 +1,4 @@
-package sn.unchk.emoney_transfer.utilisateur.profile;
+package sn.unchk.emoney_transfer.features.utilisateur.profile;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -9,7 +9,7 @@ import lombok.*;
 @Setter
 @Builder
 @Entity
-@Table(name = "utilisateurs")
+@Table(name = "profiles")
 public class Profile {
 
     @Id
