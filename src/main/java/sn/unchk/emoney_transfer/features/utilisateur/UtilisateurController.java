@@ -29,4 +29,10 @@ public class UtilisateurController {
     public ResponseEntity<UtilisateurResponseDto> update(@PathVariable Long id, @RequestBody RegisterRequest request) {
         return ResponseEntity.ok(utilisateurService.update(id, request));
     }
+
+    @PutMapping("/{id}/status")
+    public ResponseEntity<Void> changeUserStatus(@PathVariable("id") Long id, @RequestParam("status") String status) {
+        utilisateurService.ChangeUserStatus(id, Boolean.parseBoolean(status));
+        return ResponseEntity.ok().build();
+    }
 }

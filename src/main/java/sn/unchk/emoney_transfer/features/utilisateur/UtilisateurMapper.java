@@ -2,6 +2,8 @@ package sn.unchk.emoney_transfer.features.utilisateur;
 
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 @Service
 public class UtilisateurMapper {
 
@@ -16,6 +18,8 @@ public class UtilisateurMapper {
                 .numeroPiece(utilisateur.getNumeroPiece())
                 .photo(utilisateur.getPhoto())
                 .photoPiece(utilisateur.getPhotoPiece())
+                .dateInscription(utilisateur.getDateInscription())
+                .profile(Objects.nonNull(utilisateur.getProfile()) ? utilisateur.getProfile() : null)
                 .build();
     }
 }

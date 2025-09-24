@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import sn.unchk.emoney_transfer.features.utilisateur.profile.Profile;
 
+import java.time.LocalDate;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -29,7 +31,9 @@ public class Utilisateur {
 
     private boolean isActif;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    private LocalDate dateInscription;
+
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "profile_id", referencedColumnName = "id")
     private Profile profile;
 }

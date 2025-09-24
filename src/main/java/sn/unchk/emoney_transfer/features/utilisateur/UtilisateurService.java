@@ -12,6 +12,7 @@ import sn.unchk.emoney_transfer.features.compte.Compte;
 import sn.unchk.emoney_transfer.features.compte.CompteRepository;
 import sn.unchk.emoney_transfer.features.utilisateur.profile.Profile;
 import sn.unchk.emoney_transfer.features.utilisateur.profile.ProfileRepository;
+import sn.unchk.emoney_transfer.utils.CodeGenerator;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -39,6 +40,8 @@ public class UtilisateurService {
         user.setMotDePasse(request.motDePasse());
         user.setTelephone(request.telephone());
         user.setPays(request.pays());
+        user.setNumeroPiece(CodeGenerator.generateBankAccountNumber(16));
+
 
         Profile profile = profileRepo.findByName("UTILISATEUR")
                 .orElseThrow(() -> new EntityNotFoundException("Profile 'UTILISATEUR' not found"));
@@ -72,6 +75,13 @@ public class UtilisateurService {
         utilisateur.setPays(request.pays());
 
         return mapper.toDto(utilisateurRepo.save(utilisateur));
+    }
+
+    public void ChangeUserStatus(Long userId, boolean isActive) {
+        Utilisateur user = utilisateurRepo.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + userId));
+        user.setActif(!isActive);
+        utilisateurRepo.save(user);
 
     }
 

@@ -76,11 +76,10 @@ class SecurityConfig {
     public CorsConfigurationSource corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
 
-        // 🔁 Autoriser ton frontend (Angular)
         config.setAllowedOrigins(List.of("http://localhost:4200")); // Remplace par ton IP ou domaine
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true); // important si tu utilises des cookies ou sessions
+        config.setAllowCredentials(true);
         config.setExposedHeaders(List.of("Authorization"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

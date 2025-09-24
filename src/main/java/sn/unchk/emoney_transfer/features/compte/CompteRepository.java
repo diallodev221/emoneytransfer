@@ -23,4 +23,7 @@ public interface CompteRepository extends JpaRepository<Compte, Long> {
     @EntityGraph(attributePaths = {"utilisateur"})
     @Query("SELECT c FROM Compte c WHERE c.active IS TRUE AND c.id != :compteId")
     List<Compte> findAllComptesPourEnvoie(Long compteId);
+
+    @Query("SELECT COALESCE(SUM(c.solde), 0) FROM Compte c")
+    long totalSolde();
 }

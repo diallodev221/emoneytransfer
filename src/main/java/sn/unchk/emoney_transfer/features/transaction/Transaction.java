@@ -2,6 +2,8 @@ package sn.unchk.emoney_transfer.features.transaction;
 
 import jakarta.persistence.*;
 import lombok.*;
+import sn.unchk.emoney_transfer.enums.StatusTransaction;
+import sn.unchk.emoney_transfer.enums.TypeTransaction;
 import sn.unchk.emoney_transfer.features.compte.Compte;
 
 import java.math.BigDecimal;
@@ -17,17 +19,39 @@ import java.time.LocalDateTime;
 public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID")
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "source_id", referencedColumnName = "id")
+    @JoinColumn(name = "SOURCE_ID", referencedColumnName = "id")
     private Compte source;
 
     @ManyToOne
-    @JoinColumn(name = "destinataire_id", referencedColumnName = "id")
+    @JoinColumn(name = "DESTINATAIRE_ID", referencedColumnName = "id")
     private Compte destinataire;
 
+    @Column(name = "MONTANT")
     private BigDecimal montant;
+
+    @Column(name = "TOTAL_AMOUNT")
+    private BigDecimal totalAmount;
+
+    @Column(name = "DATE_OPERATION")
     private LocalDateTime date;
+
+    @Column(name = "DESCRIPTION")
     private String description;
+
+    @Column(name = "FRAIS")
+    private Double frais;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "TYPE")
+    private TypeTransaction typeTransaction;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "STATUS")
+    private StatusTransaction status;
+
+
 }

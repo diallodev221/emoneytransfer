@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import sn.unchk.emoney_transfer.features.transaction.TransactionService;
 import sn.unchk.emoney_transfer.features.utilisateur.Utilisateur;
 import sn.unchk.emoney_transfer.features.utilisateur.UtilisateurRepository;
 import sn.unchk.emoney_transfer.features.utilisateur.UtilisateurService;
@@ -23,6 +24,7 @@ public class CompteService {
     private final UtilisateurRepository utilisateurRepository;
     private final CompteMapper mapper;
     private final UtilisateurService utilisateurService;
+    private final TransactionService transactionService;
 
 
     public CompteDto creerCompte(Long utilisateurId, BigDecimal soldeInitial) {
@@ -40,12 +42,18 @@ public class CompteService {
         return mapper.toDto(compteRepository.save(compte));
     }
 
+    @Transactional
     public CompteDto crediter(Long compteId, BigDecimal montant) {
         Compte compte = loadCompteById(compteId);
         compte.setSolde(compte.getSolde().add(montant));
-        return mapper.toDto(compteRepository.save(compte));
+        Compte saved = compteRepository.save(compte);
+
+        transactionService.createTransactionFromAccount(saved, montant, "credit");
+
+        return mapper.toDto(saved);
     }
 
+    @Transactional
     public CompteDto debiter(Long compteId, BigDecimal montant) throws BadRequestException {
         Compte compte = loadCompteById(compteId);
 
@@ -54,7 +62,12 @@ public class CompteService {
         }
 
         compte.setSolde(compte.getSolde().subtract(montant));
-        return mapper.toDto(compteRepository.save(compte));
+
+        Compte saved = compteRepository.save(compte);
+
+        transactionService.createTransactionFromAccount(saved, montant, "debit");
+
+        return mapper.toDto(saved);
     }
 
     public Map<String, BigDecimal> consulterSolde(Long compteId) {
