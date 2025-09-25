@@ -15,6 +15,7 @@ import sn.unchk.emoney_transfer.features.utilisateur.UtilisateurService;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 import static sn.unchk.emoney_transfer.enums.StatusTransaction.TERMINE;
 import static sn.unchk.emoney_transfer.enums.TypeTransaction.*;
@@ -125,23 +126,39 @@ public class TransactionService {
 
     public List<TransactionResponse> getAllTransactionsCurrentUser() {
         Utilisateur currentUser = utilisateurService.getCurrentUser();
-
         Compte compte = compteRepo.findByUtilisateurId(currentUser.getId()).orElseThrow();
 
+        if (Objects.nonNull(currentUser.getProfile()) && currentUser.getProfile().getName().equals("ADMIN")) {
+            return transactionRepo.findAll().stream()
+                    .map(mapper::toResponse)
+                    .toList();
+        }
         return transactionRepo.getAllTransactions(compte.getId()).stream()
                 .map(mapper::toResponse)
                 .toList();
     }
 
     public List<TransactionResponse> getTenRecentTransactions() {
-        return transactionRepo.getTenRecentsTransactions().stream()
+        Utilisateur currentUser = utilisateurService.getCurrentUser();
+
+        if (Objects.nonNull(currentUser.getProfile()) && currentUser.getProfile().getName().equals("ADMIN")) {
+            return transactionRepo.findAll().stream()
+                    .map(mapper::toResponse)
+                    .toList();
+        }
+        return transactionRepo.getTenRecentsTransactions(currentUser.getId()).stream()
                 .map(mapper::toResponse)
                 .toList();
     }
 
     public List<TransactionResponse> getFilteredTransactions(TypeTransaction type, StatusTransaction status) {
-        Specification<Transaction> transactionSpec = TransactionSpecification.filter(type, status);
-
+        Utilisateur currentUser = utilisateurService.getCurrentUser();
+        Specification<Transaction> transactionSpec = TransactionSpecification.filter(type, status, currentUser);
+        if (Objects.nonNull(currentUser.getProfile()) && currentUser.getProfile().getName().equals("ADMIN")) {
+            return transactionRepo.findAll().stream()
+                    .map(mapper::toResponse)
+                    .toList();
+        }
         return transactionRepo.findAll(transactionSpec).stream()
                 .map(mapper::toResponse)
                 .toList();

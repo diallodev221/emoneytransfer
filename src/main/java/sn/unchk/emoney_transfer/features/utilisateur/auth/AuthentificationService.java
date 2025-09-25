@@ -7,19 +7,20 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sn.unchk.emoney_transfer.features.compte.Compte;
 import sn.unchk.emoney_transfer.features.compte.CompteRepository;
+import sn.unchk.emoney_transfer.features.utilisateur.*;
 import sn.unchk.emoney_transfer.security.jwt.JwtService;
-import sn.unchk.emoney_transfer.features.utilisateur.RegisterRequest;
-import sn.unchk.emoney_transfer.features.utilisateur.Utilisateur;
-import sn.unchk.emoney_transfer.features.utilisateur.UtilisateurMapper;
-import sn.unchk.emoney_transfer.features.utilisateur.UtilisateurRepository;
 import sn.unchk.emoney_transfer.features.utilisateur.profile.Profile;
 import sn.unchk.emoney_transfer.features.utilisateur.profile.ProfileRepository;
+import sn.unchk.emoney_transfer.utils.CodeGenerator;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -32,21 +33,26 @@ public class AuthentificationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final UtilisateurMapper utilisateurMapper;
+    private final PasswordEncoder passwordEncoder;
 
 
     @Transactional
-    public Utilisateur signup(RegisterRequest request)  {
-        if (utilisateurRepository.existsByEmail(request.email())) {
-            throw new IllegalArgumentException("Email déjà utilisé");
+    public UtilisateurResponseDto register(RegisterRequest request) {
+        if (utilisateurRepository.findByEmail(request.email()).isPresent()) {
+            throw new RuntimeException("Email déjà utilisé");
         }
 
         Utilisateur user = new Utilisateur();
         user.setPrenom(request.prenom());
         user.setNom(request.nom());
         user.setEmail(request.email());
-        user.setMotDePasse(request.motDePasse());
+        user.setMotDePasse(passwordEncoder.encode(request.motDePasse()));
         user.setTelephone(request.telephone());
         user.setPays(request.pays());
+        user.setActif(true);
+        user.setDateInscription(LocalDate.now());
+        // Générer un numéro de pièce d'identité unique
+        user.setNumeroPiece(request.numeroPiece());
 
         Profile profile = profileRepository.findByName("UTILISATEUR")
                 .orElseThrow(() -> new EntityNotFoundException("Profile 'UTILISATEUR' not found"));
@@ -54,13 +60,17 @@ public class AuthentificationService {
         user.setProfile(profile);
 
         Utilisateur savedUser = utilisateurRepository.save(user);
+        Compte compte = Compte.builder()
+                .numeroCompte(CodeGenerator.generateBankAccountNumber(16))
+                .utilisateur(savedUser)
+                .solde(BigDecimal.ZERO)
+                .active(true)
+                .dateCreation(LocalDateTime.now())
+                .build();
 
-        Compte compte = new Compte();
-        compte.setUtilisateur(savedUser);
-        compte.setSolde(BigDecimal.ZERO);
         compteRepository.save(compte);
 
-        return savedUser;
+        return utilisateurMapper.toDto(savedUser);
     }
 
 
@@ -68,13 +78,8 @@ public class AuthentificationService {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.email(), request.password()));
 
-
         Utilisateur utilisateur = utilisateurRepository.findByEmail(request.email())
                 .orElseThrow(() -> new EntityNotFoundException("Utilisateur non trouvé avec l'email: " + request.email()));
-
-//        if (!utilisateur.getMotDePasse().equals(request.password())) {
-//            throw new IllegalArgumentException("Mot de passe incorrect");
-//        }
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtService.generateToken(authentication);
@@ -85,6 +90,4 @@ public class AuthentificationService {
                 .utilisateur(utilisateurMapper.toDto(utilisateur))
                 .build();
     }
-
-
 }

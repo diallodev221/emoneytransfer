@@ -15,10 +15,6 @@ public class UtilisateurController {
         this.utilisateurService = utilisateurService;
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<UtilisateurResponseDto> register(@RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(utilisateurService.enregistrer(request));
-    }
 
     @GetMapping
     public ResponseEntity<List<UtilisateurResponseDto>> getAll() {

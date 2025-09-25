@@ -15,7 +15,10 @@ import sn.unchk.emoney_transfer.features.utilisateur.profile.ProfileRepository;
 import sn.unchk.emoney_transfer.utils.CodeGenerator;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 @Service
@@ -27,36 +30,7 @@ public class UtilisateurService {
     private final UtilisateurMapper mapper;
 
 
-    @Transactional
-    public UtilisateurResponseDto enregistrer(RegisterRequest request) {
-        if (utilisateurRepo.findByEmail(request.email()).isPresent()) {
-            throw new RuntimeException("Email déjà utilisé");
-        }
 
-        Utilisateur user = new Utilisateur();
-        user.setPrenom(request.prenom());
-        user.setNom(request.nom());
-        user.setEmail(request.email());
-        user.setMotDePasse(request.motDePasse());
-        user.setTelephone(request.telephone());
-        user.setPays(request.pays());
-        user.setNumeroPiece(CodeGenerator.generateBankAccountNumber(16));
-
-
-        Profile profile = profileRepo.findByName("UTILISATEUR")
-                .orElseThrow(() -> new EntityNotFoundException("Profile 'UTILISATEUR' not found"));
-
-        user.setProfile(profile);
-
-        Utilisateur savedUser = utilisateurRepo.save(user);
-
-        Compte compte = new Compte();
-        compte.setUtilisateur(savedUser);
-        compte.setSolde(BigDecimal.ZERO);
-        compteRepo.save(compte);
-
-        return mapper.toDto(savedUser);
-    }
 
 
     public List<UtilisateurResponseDto> getAll() {
